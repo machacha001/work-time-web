@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>実働時間計算</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f8f8f8;
+    }
+    .container {
+      text-align: center;
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 20px;
+    }
+    input, select, button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 18px;
+    }
+    button {
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>実働時間計算</h2>
+
+    <label>出勤時間：
+      <select id="startHour"></select> :
+      <select id="startMinute"></select>
+    </label><br>
+
+    <label>退勤時間：
+      <select id="endHour"></select> :
+      <select id="endMinute"></select>
+    </label><br>
+
+    <label>休憩時間：
+      <input type="number" id="breakHour" value="1" min="0"> 時間
+      <input type="number" id="breakMinute" value="0" min="0" max="59"> 分
+    </label><br>
+
+    <button onclick="calculate()">実働時間を計算</button>
+    <p id="result"></p>
+  </div>
+
+  <script>
+    const fillTimeSelect = (id, values) => {
+      const select = document.getElementById(id);
+      values.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v;
+        opt.textContent = String(v).padStart(2, '0');
+        select.appendChild(opt);
+      });
+    };
+
+    fillTimeSelect("startHour", [...Array(24).keys()]);
+    fillTimeSelect("endHour", [...Array(24).keys()]);
+    fillTimeSelect("startMinute", [0, 15, 30, 45]);
+    fillTimeSelect("endMinute", [0, 15, 30, 45]);
+
+    function calculate() {
+      const sh = +document.getElementById("startHour").value;
+      const sm = +document.getElementById("startMinute").value;
+      const eh = +document.getElementById("endHour").value;
+      const em = +document.getElementById("endMinute").value;
+      const bh = +document.getElementById("breakHour").value;
+      const bm = +document.getElementById("breakMinute").value;
+
+      let startMin = sh * 60 + sm;
+      let endMin = eh * 60 + em;
+      if (endMin < startMin) endMin += 24 * 60;
+
+      const breakMin = bh * 60 + bm;
+      const workMin = endMin - startMin - breakMin;
+      const h = Math.floor(workMin / 60);
+      const m = workMin % 60;
+      const dec = (workMin / 60).toFixed(2);
+
+      document.getElementById("result").textContent =
+        `実働時間：${h}時間${m}分（${dec}時間）`;
+    }
+  </script>
+</body>
+</html>
